@@ -3,6 +3,7 @@
 <head>
  	<meta charset="utf-8">
   <title>mturjak/filemover - demo</title>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
  	<link rel="stylesheet" type="text/css" href="css/demo.css">
  	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <script src="js/jquery.filemover.min.js"></script>
@@ -12,36 +13,54 @@
  		<h1>Demo - <a href="https://github.com/mturjak/filemover">mturjak/filemover</a></h1>
  	</header>
  	<section id="main-content">
- 	<div class="console"></div>
-  <h3>/</h3>
+ 	<div class="console alert alert-info">
+    <p><strong>Console ...</strong></p>
+  </div>
+  <h3><i class="glyphicon glyphicon-folder-open lightgray"></i> files/</h3>
  	<ul id="f1" class="file-list">
-    <button class="move" data-origin="" data-target="test" data-tid="#f2">MOVE TO /test/</button>
- 	  <li class="file" data-fname="test1.txt">test1.txt<input class="to_move" type="checkbox" /></li>
-    <li class="file" data-fname="test2.txt">test1.txt<input class="to_move" type="checkbox" /></li>
+    <li><button class="move btn btn-primary btn-sm" data-origin="" data-target="test" data-tid="#f2">MOVE TO: files/test/</button></li>
  	</ul>
-  <h3>/test/</h3>
+  <h3><i class="glyphicon glyphicon-folder-open lightgray"></i> <span class="lightgray">files/</span>test/</h3>
   <ul id="f2" class="file-list">
-    <button class="move" data-origin="test" data-target="" data-tid="#f1">MOVE TO /</button>
+    <li><button class="move btn btn-primary btn-sm" data-origin="test" data-target="" data-tid="#f1">MOVE TO: files/</button></li>
   </ul>
 	</section>
  	<footer>
  	</footer>
   <script type="text/javascript">
+    function listFiles(obj, dir) {
+      $.ajax({
+        url: 'server/php/index.php',
+        data: {'dir': dir },
+        dataType: 'json',
+        type: 'POST'
+      }).done(function(res){
+        $.each(res.files, function(){
+          $('<li class="file" data-fname="'
+            +( dir == '' ? '' : dir+'/')
+            +this+'"><label><input class="to_move" type="checkbox" /> '
+            +this+'</label></li>').prependTo(obj);
+        });
+      });
+    }
     $(function(){
+      $('.file-list').each(function(i){
+        listFiles(this,$(this).find('button.move').data('origin'));
+      });
       $('.file-list').on('change', 'input.to_move', function(){
-        $(this).parent().toggleClass('selected');
+        $(this).parent().parent().toggleClass('selected');
       });
       $('.move').on('click', function(){
         var origin = ( $(this).data('origin') == '' ? '' : $(this).data('origin') + '/'),
             target = $(this).data('target'),
             targetId = $(this).data('tid');
-        $(this).siblings('li.selected').filemover( target, function(obj, res){
+        $(this).parent().siblings('li.selected').filemover( target, function(obj, res){
+          $('.console').html('');
           $.each( res, function(i){
-            console.log(obj[i] + "  " + targetId );
             $('.console').append( "<p>"+this.message+"</p>" );
             if( this.done ) {
               var fn = $(obj[i]).data('fname').replace( origin, '' );
-              $(obj[i]).data('fname', target + '/' + fn).appendTo(targetId);
+              $(obj[i]).data('fname', target + '/' + fn).prependTo(targetId);
             }
           });
         });

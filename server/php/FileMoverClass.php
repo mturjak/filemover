@@ -40,7 +40,10 @@ class FileMover {
     if(empty($data)) {
       $response = array('done'=>0,'message'=>'No values passed or values not set correctly.');
     } else {
-      if(gettype($data['file']) == 'array') {
+      if(!isset($data['file'])) {
+        // if no files passed return list of files in directory
+        $response = $this->list_files($data['dir']);
+      } else if(gettype($data['file']) == 'array') {
         // move multiple files (passed as an array of filenames)
         $response = array();
         foreach($data['file'] as $f) {
@@ -68,20 +71,34 @@ class FileMover {
 
   private function post($f, $d){
     $out = array();
-    if(isset($_POST[$f]) && isset($_POST[$d])) {
+    if(isset($_POST[$f]))
       $out['file'] = $_POST[$f];
+    if(isset($_POST[$d]))
       $out['dir'] = $_POST[$d];
-    }
     return $out;
   }
 
   private function get($f, $d){
     $out = array();
-    if(isset($_GET[$f]) && isset($_GET[$d])) {
+    if(isset($_GET[$f]))
       $out['file'] = $_GET[$f];
+    if(isset($_GET[$d]))
       $out['dir'] = $_GET[$d];
-    }
     return $out;
+  }
+
+  private function list_files($dir) {
+    $baseDir = $this->options['dir'];
+    $dir = realpath($baseDir.$dir);
+    if(strpos($dir."/", $baseDir) === 0){
+      $files = array();
+      foreach (scandir($dir) as $item) {
+        if(!is_dir($dir."/".$item))
+          $files[] = $item;
+      }
+      return array('done'=>0,'files' => $files);
+    }
+    return array('done'=>0,'message'=>'Invalide directory!');
   }
 
   private function move($fname, $target_dir) {
