@@ -5,23 +5,18 @@
     font-weight:normal;
     font-style:normal
 }
-html, body {
-	width: 100%;
-	margin: 0;
-	padding: 0;
-}
-.wrapper {
-  width: 700px;
-  margin: 0 auto;
-}
 a:hover {
 	text-decoration: none;
 }
 .lightgray {
 	color: #ccc;
 }
-.console, .directories {
-	margin-top: 24px;
+.wrapper {
+  width: 700px;
+  margin: 0 auto;
+}
+.intro, .console, .directories {
+	margin: 24px 0;
 }
 .dropdown {
 	display: inline-block;
