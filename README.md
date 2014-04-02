@@ -8,21 +8,21 @@ filemover
  - [Server side scripts](#server-siede-scripts)
    - [PHP](#php)
 
-Demo
-----
+##Demo
 Simple example demonstrating the use of [filemover](https://github.com/mturjak/filemover):
 
 [Demo page (http://filemover.newtpond.com)](http://filemover.newtpond.com)
 
-jQuery plugin
--------------
-Short description comming soon ...
+##jQuery plugin
+Short description coming soon ...
 
-Server side scripts
--------------------
-Short description comming soon ...
+##Server side scripts
+Short description coming soon ...
 
 ###PHP
-Short description comming soon ...
+Short description coming soon ...
+
+## License
+Released under the [MIT license](http://www.opensource.org/licenses/MIT).
 
 
