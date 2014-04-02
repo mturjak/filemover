@@ -98,7 +98,8 @@
         $(this).parent().parent().toggleClass('selected');
       });
 
-      $('.move').on('click', function(){
+      $('.move').on('click', function(e){
+        e.preventDefault();
         fm.target = $(this).data('target'),
         fm.targetId = $(this).data('tid');
 
