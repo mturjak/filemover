@@ -17,7 +17,7 @@
         files:    Array(),
         console:  '.console',
         data:     'fname',
-        scandir:  false, 
+        scandir:  false,
         callback: callback || defaultCallback,
         method:   'POST',
         ajaxUrl:  'server/php/index.php'
@@ -40,22 +40,24 @@
       });
 
       // if no files to move return default object
-      if( options.scandir && options.files.length < 1 ) {
+      if( !options.scandir && options.files.length < 1 ) {
         return $out;
-      }
+      } else {
 
-      // make ajax call & on done call callback function
-      var o = this;
-      $out = $.ajax({
-        type: options.method,
-        url: options.ajaxUrl,
-        dataType: 'json',
-        data: { 'dir' : options.dir, 'file' : options.files }
-      }).done( function( res ) {
-        if( typeof options.callback == 'function' ) {
-          options.callback( o, res );
-        }
-      });
+        // make ajax call & on done call callback function
+        var o = this;
+        $out = $.ajax({
+          type: options.method,
+          url: options.ajaxUrl,
+          dataType: 'json',
+          data: { 'dir' : options.dir, 'file' : options.files }
+        }).done( function( res ) {
+          if( typeof options.callback == 'function' ) {
+            options.callback( o, res );
+          }
+        });
+
+      }
 
       // return deffered object
       return $out;

@@ -11,7 +11,7 @@
  */
 
 class FileMover {
-  protected $options;
+  public $options;
 
   public function __construct($options = null){
     $this->options = array(
@@ -24,7 +24,7 @@ class FileMover {
       // name of request method:
       'req-method' => 'POST',
       // allow directory creation:
-      'new-dir' => false
+      'new-dir' => false,
     );
     if ($options) {
       $this->options = $options + $this->options;
@@ -89,23 +89,23 @@ class FileMover {
 
   private function list_files($dir) {
     $baseDir = $this->options['dir'];
-    $dir = realpath($baseDir.$dir);
-    if(strpos($dir."/", $baseDir) === 0){
-      $files = array();
+    $dir = dirname($baseDir.$dir.'/e/');
+    $files = array();
+    if(strpos($dir.'/', $baseDir) === 0){
       foreach (scandir($dir) as $item) {
-        if(!is_dir($dir."/".$item))
+        if(!is_dir($dir.'/'.$item))
           $files[] = $item;
       }
       return array('done'=>0,'files' => $files);
     }
-    return array('done'=>0,'message'=>'Invalide directory!');
+    return array('done'=>0,'message'=>'Invalide directory!','files'=>$files);
   }
 
   private function move($fname, $target_dir) {
     $baseDir = $this->options['dir'];
-    $file = realpath($baseDir.$fname);
-    $dir = realpath($baseDir.$target_dir);
-    if(strpos($dir."/", $baseDir) === 0 && strpos($file, $baseDir) === 0){
+    $file = dirname($baseDir.$fname).'/'.basename($baseDir.$fname);
+    $dir = dirname($baseDir.$target_dir.'/e/');
+    if(strpos($dir.'/', $baseDir) === 0 && strpos($file, $baseDir) === 0){
       if(!is_dir($dir) && $this->options['new-dir'])
         mkdir($dir, 0755);
       if(is_dir($dir))
