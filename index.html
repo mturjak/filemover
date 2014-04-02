@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
  	<link rel="stylesheet" type="text/css" href="css/demo.css">
  	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
   <script src="js/jquery.filemover.min.js"></script>
 </head>
 <body>
@@ -13,58 +14,87 @@
  		<h1>Demo - <a href="https://github.com/mturjak/filemover">mturjak/filemover</a></h1>
  	</header>
  	<section id="main-content">
- 	<div class="console alert alert-info">
-    <p><strong>Console ...</strong></p>
-  </div>
-  <h3><i class="glyphicon glyphicon-folder-open lightgray"></i> files/</h3>
- 	<ul id="f1" class="file-list">
-    <li><button class="move btn btn-primary btn-sm" data-origin="" data-target="test" data-tid="#f2">MOVE TO: files/test/</button></li>
- 	</ul>
-  <h3><i class="glyphicon glyphicon-folder-open lightgray"></i> <span class="lightgray">files/</span>test/</h3>
-  <ul id="f2" class="file-list">
-    <li><button class="move btn btn-primary btn-sm" data-origin="test" data-target="" data-tid="#f1">MOVE TO: files/</button></li>
-  </ul>
+
+    <!-- output console -->
+    <div class="console alert alert-info"></div>
+
+    <!-- controlles -->
+    <button class="btn btn-default btn-sm" type="button" id="refresh">
+      Refresh view 
+      <span class="glyphicon glyphicon-refresh"></span>
+    </button>
+    <div class="dropdown">
+      <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdown1" data-toggle="dropdown">
+        Move to 
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown1">
+        <li role="presentation"><a class="move" role="menuitem" tabindex="-1" href="#" data-target="" data-tid="#f1">files/</a></li>
+        <li role="presentation"><a class="move" role="menuitem" tabindex="-1" href="#" data-target="test" data-tid="#f2">files/test/</a></li>
+      </ul>
+    </div>
+
+    <!-- demo directories / file-lists: -->
+    <div class="directories">
+      <h3><span class="glyphicon glyphicon-folder-open lightgray"></span> files/</h3>
+     	<div id="f1" class="file-list" data-origin=""></div>
+
+      <h3><span class="glyphicon glyphicon-folder-open lightgray"></span> <span class="lightgray">files/</span>test/</h3>
+      <div id="f2" class="file-list" data-origin="test"></div>
+    </div>
+
 	</section>
  	<footer>
+
  	</footer>
   <script type="text/javascript">
-    function listFiles(obj, dir) {
-      $.ajax({
-        url: 'server/php/index.php',
-        data: {'dir': dir },
-        dataType: 'json',
-        type: 'POST'
-      }).done(function(res){
-        $.each(res.files, function(){
-          $('<li class="file" data-fname="'
-            +( dir == '' ? '' : dir+'/')
-            +this+'"><label><input class="to_move" type="checkbox" /> '
-            +this+'</label></li>').prependTo(obj);
-        });
-      });
-    }
     $(function(){
-      $('.file-list').each(function(i){
-        listFiles(this,$(this).find('button.move').data('origin'));
-      });
+
+      var fm = {
+          target: '',
+          targetId: '#f1',
+          listFiles:  function(obj, res){
+            var dir = $(obj).data('origin') == '' ? '' : $(obj).data('origin');
+
+            $.each(res.files, function(){
+              $('<div class="file" data-fname="'+dir+'/'+this+'"><label><input class="to_move" type="checkbox" /> '+this+'</label></div>').appendTo(obj);
+            });
+          },
+          moveFiles:  function(obj, res, apndTo){
+            $('.console').empty();
+
+            $.each( res, function(i){
+              $('.console').append( '<p>'+this.message+'</p>' );
+              if( this.done && origin != fm.target) {
+                var origin = ( $(obj[i]).parent().data('origin') == '' ? '' : $(obj[i]).parent().data('origin') + '/'),
+                    fn = $(obj[i]).data('fname').replace( origin, '' );
+
+                $(obj[i]).data('fname', fm.target + '/' + fn).appendTo(fm.targetId);
+              }
+            });
+          }
+      }
+
+      $('#refresh').on('click', function(){
+        $('.file-list').each(function(){
+          $(this).empty();
+          $('.console').html( '<p>Console ...</p>' );
+
+          $(this).filemover({'dir': $(this).data('origin'), 'scandir': true}, fm.listFiles);
+        });
+      }).trigger('click');
+
       $('.file-list').on('change', 'input.to_move', function(){
         $(this).parent().parent().toggleClass('selected');
       });
+
       $('.move').on('click', function(){
-        var origin = ( $(this).data('origin') == '' ? '' : $(this).data('origin') + '/'),
-            target = $(this).data('target'),
-            targetId = $(this).data('tid');
-        $(this).parent().siblings('li.selected').filemover( target, function(obj, res){
-          $('.console').html('');
-          $.each( res, function(i){
-            $('.console').append( "<p>"+this.message+"</p>" );
-            if( this.done ) {
-              var fn = $(obj[i]).data('fname').replace( origin, '' );
-              $(obj[i]).data('fname', target + '/' + fn).prependTo(targetId);
-            }
-          });
-        });
+        fm.target = $(this).data('target'),
+        fm.targetId = $(this).data('tid');
+
+        $('.selected').filemover( fm.target, fm.moveFiles);
       });
+
     });
   </script>
 </body>
